@@ -1,7 +1,5 @@
-// API client for communicating with Netlify functions
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? '/api' 
-  : '/.netlify/functions';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export interface Story {
   id: string;
@@ -34,14 +32,18 @@ export interface ApiResponse<T> {
 }
 
 class ApiClient {
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
+  private async request<T>(endpoint: string, params: Record<string, string> = {}): Promise<ApiResponse<T>> {
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const url = new URL(`${SUPABASE_URL}/functions/v1/${endpoint}`);
+      Object.entries(params).forEach(([key, value]) => {
+        if (value) url.searchParams.set(key, value);
+      });
+
+      const response = await fetch(url.toString(), {
         headers: {
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json',
-          ...options.headers,
         },
-        ...options,
       });
 
       const data = await response.json();
@@ -57,66 +59,50 @@ class ApiClient {
     }
   }
 
-  // Stories API
   async getStories(params?: {
     subreddit?: string;
     sort?: 'hot' | 'new' | 'rising';
     limit?: number;
   }): Promise<ApiResponse<{ stories: Story[] }>> {
-    const searchParams = new URLSearchParams();
-    
-    if (params?.subreddit) searchParams.set('subreddit', params.subreddit);
-    if (params?.sort) searchParams.set('sort', params.sort);
-    if (params?.limit) searchParams.set('limit', params.limit.toString());
-
-    const queryString = searchParams.toString();
-    const endpoint = `/stories${queryString ? `?${queryString}` : ''}`;
-
-    return this.request<{ stories: Story[] }>(endpoint);
-  }
-
-  async getStory(id: string): Promise<ApiResponse<{ story: Story }>> {
-    return this.request<{ story: Story }>(`/stories/${id}`);
-  }
-
-  async createStory(story: Partial<Story>): Promise<ApiResponse<{ story: Story }>> {
-    return this.request<{ story: Story }>('/stories', {
-      method: 'POST',
-      body: JSON.stringify(story),
+    return this.request<{ stories: Story[] }>('reddit-stories', {
+      subreddit: params?.subreddit || '',
+      sort: params?.sort || 'hot',
+      limit: params?.limit?.toString() || '25',
     });
   }
 
-  // Subreddits API
-  async getSubreddits(params?: {
+  async getStory(id: string): Promise<ApiResponse<{ story: Story }>> {
+    return this.request<{ story: Story }>('reddit-stories', { id });
+  }
+
+  async getSubreddits(_params?: {
     limit?: number;
   }): Promise<ApiResponse<{ subreddits: Subreddit[] }>> {
-    const searchParams = new URLSearchParams();
-    
-    if (params?.limit) searchParams.set('limit', params.limit.toString());
-
-    const queryString = searchParams.toString();
-    const endpoint = `/subreddits${queryString ? `?${queryString}` : ''}`;
-
-    return this.request<{ subreddits: Subreddit[] }>(endpoint);
+    const defaultSubreddits: Subreddit[] = [
+      { id: '1', name: 'nosleep', description: 'A place for authors to share original horror stories', members: 17400000, online: 5200, created_at: new Date().toISOString() },
+      { id: '2', name: 'LetsNotMeet', description: 'True scary stories about real people', members: 1800000, online: 1200, created_at: new Date().toISOString() },
+      { id: '3', name: 'creepyencounters', description: 'Unsettling encounters that left you feeling uneasy', members: 450000, online: 800, created_at: new Date().toISOString() },
+      { id: '4', name: 'Glitch_in_the_Matrix', description: 'Eye-witness accounts of inexplicable events', members: 680000, online: 950, created_at: new Date().toISOString() },
+      { id: '5', name: 'TrueScaryStories', description: 'True accounts of frightening experiences', members: 320000, online: 600, created_at: new Date().toISOString() },
+      { id: '6', name: 'shortscarystories', description: 'Short scary stories under 500 words', members: 1100000, online: 2100, created_at: new Date().toISOString() },
+    ];
+    return { data: { subreddits: defaultSubreddits } };
   }
 
   async getSubreddit(name: string): Promise<ApiResponse<{ subreddit: Subreddit }>> {
-    return this.request<{ subreddit: Subreddit }>(`/subreddits/${name}`);
+    const result = await this.getSubreddits();
+    const subreddit = result.data?.subreddits.find(s => s.name.toLowerCase() === name.toLowerCase());
+    if (subreddit) {
+      return { data: { subreddit } };
+    }
+    return { data: { subreddit: { id: name, name, description: `Stories from r/${name}`, members: 0, online: 0, created_at: new Date().toISOString() } } };
   }
 
   async getSubredditStories(name: string, params?: {
     sort?: 'hot' | 'new' | 'rising';
     limit?: number;
   }): Promise<ApiResponse<{ stories: Story[] }>> {
-    const searchParams = new URLSearchParams();
-    
-    if (params?.sort) searchParams.set('sort', params.sort);
-    if (params?.limit) searchParams.set('limit', params.limit.toString());
-
-    const queryString = searchParams.toString();
-    const endpoint = `/subreddits/${name}/stories${queryString ? `?${queryString}` : ''}`;
-
-    return this.request<{ stories: Story[] }>(endpoint);
+    return this.getStories({ ...params, subreddit: name });
   }
 }
 

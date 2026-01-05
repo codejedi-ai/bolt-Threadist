@@ -114,14 +114,15 @@ export default function Home() {
                     ) : (
                       <VStack spacing={4} align="stretch">
                         {stories.map((story) => (
-                          <StoryCard 
-                            key={story.id} 
+                          <StoryCard
+                            key={story.id}
                             story={{
                               ...story,
                               createdAt: new Date(story.created_at),
                               isNarrated: story.is_narrated,
                               audioUrl: story.audio_url,
-                            }} 
+                              reddit_url: story.reddit_url,
+                            }}
                           />
                         ))}
                       </VStack>
@@ -151,14 +152,15 @@ export default function Home() {
                     ) : (
                       <VStack spacing={4} align="stretch">
                         {stories.map((story) => (
-                          <StoryCard 
-                            key={story.id} 
+                          <StoryCard
+                            key={story.id}
                             story={{
                               ...story,
                               createdAt: new Date(story.created_at),
                               isNarrated: story.is_narrated,
                               audioUrl: story.audio_url,
-                            }} 
+                              reddit_url: story.reddit_url,
+                            }}
                           />
                         ))}
                       </VStack>
@@ -188,14 +190,15 @@ export default function Home() {
                     ) : (
                       <VStack spacing={4} align="stretch">
                         {stories.map((story) => (
-                          <StoryCard 
-                            key={story.id} 
+                          <StoryCard
+                            key={story.id}
                             story={{
                               ...story,
                               createdAt: new Date(story.created_at),
                               isNarrated: story.is_narrated,
                               audioUrl: story.audio_url,
-                            }} 
+                              reddit_url: story.reddit_url,
+                            }}
                           />
                         ))}
                       </VStack>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Box,
   Container,
@@ -8,24 +8,20 @@ import {
   Button,
   useColorModeValue,
   Divider,
-  Avatar,
-  Badge,
   IconButton,
-  Textarea,
   Spinner,
+  Link,
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import { useStory } from '../hooks/useStory';
-import { FaPlay, FaPause, FaVolumeUp, FaShare, FaBookmark } from 'react-icons/fa';
+import { FaShare, FaBookmark, FaExternalLinkAlt } from 'react-icons/fa';
 import { ChevronUpIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function Story() {
-  const { subreddit, postId } = useParams();
+  const { postId } = useParams();
   const { story, loading, error } = useStory(postId);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
-  const [comment, setComment] = useState('');
 
   const bg = useColorModeValue('#dae0e6', '#0b1426');
   const cardBg = useColorModeValue('white', '#1a1a1b');
@@ -34,11 +30,6 @@ export default function Story() {
 
   const handleVote = (voteType: 'up' | 'down') => {
     setUserVote(userVote === voteType ? null : voteType);
-  };
-
-  const handlePlayAudio = () => {
-    setIsPlaying(!isPlaying);
-    // Audio playback logic would go here
   };
 
   if (loading) {
@@ -75,7 +66,6 @@ export default function Story() {
     <Box bg={bg} minH="100vh" pt="60px">
       <Container maxW="800px" py={6}>
         <VStack spacing={6} align="stretch">
-          {/* Story Card */}
           <Box
             bg={cardBg}
             border="1px solid"
@@ -84,7 +74,6 @@ export default function Story() {
             overflow="hidden"
           >
             <HStack spacing={0} align="stretch">
-              {/* Vote Section */}
               <VStack
                 spacing={1}
                 p={4}
@@ -112,70 +101,42 @@ export default function Story() {
                 />
               </VStack>
 
-              {/* Content Section */}
               <VStack flex={1} align="stretch" spacing={4} p={6}>
-                {/* Header */}
                 <VStack align="flex-start" spacing={2}>
                   <HStack spacing={2} fontSize="sm" color={textColor}>
                     <Text fontWeight="bold">r/{story.subreddit}</Text>
-                    <Text>•</Text>
+                    <Text>-</Text>
                     <Text>Posted by u/{story.author}</Text>
-                    <Text>•</Text>
+                    <Text>-</Text>
                     <Text>{formatDistanceToNow(new Date(story.created_at))} ago</Text>
                   </HStack>
-                  <HStack justify="space-between" w="full">
-                    <Text fontSize="xl" fontWeight="bold" lineHeight="1.3">
-                      {story.title}
-                    </Text>
-                    {story.is_narrated && (
-                      <Badge colorScheme="green" variant="subtle">
-                        <HStack spacing={1}>
-                          <FaVolumeUp size={10} />
-                          <Text fontSize="xs">AI Narrated</Text>
-                        </HStack>
-                      </Badge>
-                    )}
-                  </HStack>
+                  <Text fontSize="xl" fontWeight="bold" lineHeight="1.3">
+                    {story.title}
+                  </Text>
                 </VStack>
 
-                {/* Audio Player */}
-                {story.is_narrated && (
-                  <Box
-                    bg={useColorModeValue('orange.50', 'orange.900')}
-                    p={4}
-                    borderRadius="md"
-                    border="1px solid"
-                    borderColor="orange.200"
-                  >
-                    <HStack justify="space-between">
-                      <HStack spacing={3}>
-                        <Button
-                          leftIcon={isPlaying ? <FaPause /> : <FaPlay />}
-                          colorScheme="orange"
-                          size="sm"
-                          onClick={handlePlayAudio}
-                        >
-                          {isPlaying ? 'Pause' : 'Listen to Story'}
-                        </Button>
-                        <Text fontSize="sm" color="orange.600">
-                          🎧 AI-generated narration • 8 min read
-                        </Text>
-                      </HStack>
-                    </HStack>
-                  </Box>
-                )}
-
-                {/* Story Content */}
                 <Box>
-                  <Text lineHeight="1.6" whiteSpace="pre-line">
+                  <Text lineHeight="1.8" whiteSpace="pre-wrap" fontSize="md">
                     {story.content}
                   </Text>
                 </Box>
 
                 <Divider />
 
-                {/* Actions */}
                 <HStack spacing={4}>
+                  {story.reddit_url && (
+                    <Button
+                      as={Link}
+                      href={story.reddit_url}
+                      isExternal
+                      leftIcon={<FaExternalLinkAlt />}
+                      variant="ghost"
+                      size="sm"
+                      color={textColor}
+                    >
+                      View on Reddit
+                    </Button>
+                  )}
                   <Button
                     leftIcon={<FaShare />}
                     variant="ghost"
@@ -192,22 +153,11 @@ export default function Story() {
                   >
                     Save
                   </Button>
-                  {!story.is_narrated && (
-                    <Button
-                      leftIcon={<FaVolumeUp />}
-                      variant="outline"
-                      size="sm"
-                      colorScheme="orange"
-                    >
-                      Generate Audio
-                    </Button>
-                  )}
                 </HStack>
               </VStack>
             </HStack>
           </Box>
 
-          {/* Comments Section */}
           <Box
             bg={cardBg}
             border="1px solid"
@@ -217,48 +167,11 @@ export default function Story() {
           >
             <VStack spacing={4} align="stretch">
               <Text fontSize="lg" fontWeight="bold">
-                Comments ({story.comments})
+                {story.comments} Comments
               </Text>
-
-              {/* Add Comment */}
-              <VStack spacing={3} align="stretch">
-                <Textarea
-                  placeholder="What are your thoughts?"
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  bg={useColorModeValue('gray.50', '#272729')}
-                  border="1px solid"
-                  borderColor={borderColor}
-                />
-                <HStack justify="flex-end">
-                  <Button colorScheme="orange" size="sm">
-                    Comment
-                  </Button>
-                </HStack>
-              </VStack>
-
-              <Divider />
-
-              {/* Sample Comments */}
-              <VStack spacing={4} align="stretch">
-                <HStack align="flex-start" spacing={3}>
-                  <Avatar size="sm" name="user1" />
-                  <VStack align="flex-start" spacing={1} flex={1}>
-                    <HStack spacing={2} fontSize="sm">
-                      <Text fontWeight="bold">spooky_reader</Text>
-                      <Text color={textColor}>2 hours ago</Text>
-                    </HStack>
-                    <Text>
-                      This gave me chills! Please update us on what you found behind the door. 
-                      The way you described the cold handle really got to me.
-                    </Text>
-                    <HStack spacing={2} fontSize="sm">
-                      <Button size="xs" variant="ghost">↑ 45</Button>
-                      <Button size="xs" variant="ghost">Reply</Button>
-                    </HStack>
-                  </VStack>
-                </HStack>
-              </VStack>
+              <Text color={textColor} fontSize="sm">
+                Comments are loaded from Reddit. Click "View on Reddit" to see the full discussion.
+              </Text>
             </VStack>
           </Box>
         </VStack>

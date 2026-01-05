@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Box,
   Container,
@@ -7,7 +6,6 @@ import {
   Text,
   Button,
   useColorModeValue,
-  Badge,
   Tabs,
   TabList,
   TabPanels,
@@ -17,11 +15,11 @@ import {
   Spinner,
 } from '@chakra-ui/react';
 import { FaVolumeUp, FaBookmark, FaHistory } from 'react-icons/fa';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useAuth } from '../context/AuthContext';
 import AuthProfile from '../components/auth/Profile';
 
 export default function Profile() {
-  const { user, isAuthenticated, isLoading } = useAuth0();
+  const { isAuthenticated, isLoading } = useAuth();
   const bg = useColorModeValue('#dae0e6', '#0b1426');
   const cardBg = useColorModeValue('white', '#1a1a1b');
   const borderColor = useColorModeValue('gray.200', '#343536');
@@ -57,10 +55,8 @@ export default function Profile() {
     <Box bg={bg} minH="100vh" pt="60px">
       <Container maxW="1000px" py={6}>
         <VStack spacing={6} align="stretch">
-          {/* Profile Header */}
           <AuthProfile />
 
-          {/* Stats */}
           <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4}>
             <Box
               bg={cardBg}
@@ -71,10 +67,10 @@ export default function Profile() {
               textAlign="center"
             >
               <Text fontSize="2xl" fontWeight="bold" color="orange.500">
-                127
+                0
               </Text>
               <Text fontSize="sm" color="gray.500">
-                Stories Listened
+                Stories Read
               </Text>
             </Box>
             <Box
@@ -86,10 +82,10 @@ export default function Profile() {
               textAlign="center"
             >
               <Text fontSize="2xl" fontWeight="bold" color="orange.500">
-                45h
+                0h
               </Text>
               <Text fontSize="sm" color="gray.500">
-                Total Listen Time
+                Total Read Time
               </Text>
             </Box>
             <Box
@@ -101,7 +97,7 @@ export default function Profile() {
               textAlign="center"
             >
               <Text fontSize="2xl" fontWeight="bold" color="orange.500">
-                23
+                0
               </Text>
               <Text fontSize="sm" color="gray.500">
                 Saved Stories
@@ -116,7 +112,7 @@ export default function Profile() {
               textAlign="center"
             >
               <Text fontSize="2xl" fontWeight="bold" color="orange.500">
-                8
+                0
               </Text>
               <Text fontSize="sm" color="gray.500">
                 Subreddits Followed
@@ -124,7 +120,6 @@ export default function Profile() {
             </Box>
           </SimpleGrid>
 
-          {/* Content Tabs */}
           <Box
             bg={cardBg}
             border="1px solid"
@@ -137,7 +132,7 @@ export default function Profile() {
                 <Tab>
                   <HStack spacing={2}>
                     <FaHistory />
-                    <Text>Listening History</Text>
+                    <Text>Reading History</Text>
                   </HStack>
                 </Tab>
                 <Tab>
@@ -149,7 +144,7 @@ export default function Profile() {
                 <Tab>
                   <HStack spacing={2}>
                     <FaVolumeUp />
-                    <Text>Audio Preferences</Text>
+                    <Text>Preferences</Text>
                   </HStack>
                 </Tab>
               </TabList>
@@ -158,7 +153,7 @@ export default function Profile() {
                 <TabPanel>
                   <VStack spacing={4} align="stretch">
                     <Text color="gray.500" textAlign="center" py={8}>
-                      Your listening history will appear here
+                      Your reading history will appear here
                     </Text>
                   </VStack>
                 </TabPanel>
@@ -172,24 +167,18 @@ export default function Profile() {
                 <TabPanel>
                   <VStack spacing={4} align="stretch">
                     <Text fontWeight="bold" mb={4}>
-                      Voice Settings
+                      Reading Settings
                     </Text>
                     <HStack justify="space-between">
-                      <Text>Preferred Voice</Text>
+                      <Text>Dark Mode</Text>
                       <Button size="sm" variant="outline">
-                        Select Voice
+                        Toggle
                       </Button>
                     </HStack>
                     <HStack justify="space-between">
-                      <Text>Reading Speed</Text>
+                      <Text>Font Size</Text>
                       <Button size="sm" variant="outline">
-                        Normal
-                      </Button>
-                    </HStack>
-                    <HStack justify="space-between">
-                      <Text>Auto-play Next Story</Text>
-                      <Button size="sm" colorScheme="orange">
-                        Enabled
+                        Medium
                       </Button>
                     </HStack>
                   </VStack>
