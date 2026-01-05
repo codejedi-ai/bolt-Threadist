@@ -106,17 +106,9 @@ export default function Navbar() {
                 <Button
                   as={RouterLink}
                   to="/signin"
-                  variant="outline"
+                  colorScheme="orange"
                 >
                   Sign In
-                </Button>
-                <Button
-                  as={RouterLink}
-                  to="/signin"
-                  colorScheme="orange"
-                  size="sm"
-                >
-                  Sign Up
                 </Button>
               </>
             )}
@@ -151,23 +143,13 @@ export default function Navbar() {
             )}
 
             {!isLandingPage && !isAuthenticated && !isLoading && (
-              <>
-                <Button
-                  as={RouterLink}
-                  to="/signin"
-                  variant="ghost"
-                >
-                  Sign In
-                </Button>
-                <Button
-                  as={RouterLink}
-                  to="/signin"
-                  colorScheme="orange"
-                  size="sm"
-                >
-                  Sign Up
-                </Button>
-              </>
+              <Button
+                as={RouterLink}
+                to="/signin"
+                colorScheme="orange"
+              >
+                Sign In
+              </Button>
             )}
 
             <IconButton
