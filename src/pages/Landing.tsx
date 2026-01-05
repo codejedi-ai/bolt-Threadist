@@ -19,8 +19,7 @@ import {
 import { FaPlay, FaVolumeUp, FaReddit, FaRocket, FaUsers, FaClock } from 'react-icons/fa';
 import { ChevronUpIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
-import { useAuth0 } from '@auth0/auth0-react';
-import LoginButton from '../components/auth/LoginButton';
+import { useAuth } from '../context/AuthContext';
 import WaitlistModal from '../components/waitlist/WaitlistModal';
 
 const FeatureCard = ({ icon, title, description }: { icon: any, title: string, description: string }) => {
@@ -117,7 +116,7 @@ export default function Landing() {
     'linear(to-br, orange.600, red.700)'
   );
   
-  const { user, isAuthenticated } = useAuth0();
+  const { isAuthenticated } = useAuth();
   const { isOpen: isWaitlistOpen, onOpen: onWaitlistOpen, onClose: onWaitlistClose } = useDisclosure();
 
   return (
@@ -160,13 +159,16 @@ export default function Landing() {
                     Start Listening
                   </Button>
                 ) : (
-                  <LoginButton
+                  <Button
+                    as={RouterLink}
+                    to="/signin"
                     size="lg"
                     colorScheme="yellow"
+                    color="black"
                     leftIcon={<FaUsers />}
                   >
-                    Join Waitlist
-                  </LoginButton>
+                    Get Started
+                  </Button>
                 )}
                 <Button
                   size="lg"
@@ -318,13 +320,16 @@ export default function Landing() {
                     Start Listening Now
                   </Button>
                 ) : (
-                  <LoginButton
+                  <Button
+                    as={RouterLink}
+                    to="/signin"
                     size="lg"
                     colorScheme="yellow"
+                    color="black"
                     leftIcon={<FaUsers />}
                   >
-                    Join Waitlist
-                  </LoginButton>
+                    Get Started
+                  </Button>
                 )}
                 <Button
                   size="lg"

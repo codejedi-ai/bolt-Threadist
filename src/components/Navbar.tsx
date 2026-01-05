@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Box,
   Flex,
@@ -22,22 +22,23 @@ import {
 import { SearchIcon, MoonIcon, SunIcon } from '@chakra-ui/icons';
 import { FaReddit } from 'react-icons/fa';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { useAuth0 } from '@auth0/auth0-react';
-import LoginButton from './auth/LoginButton';
-import LogoutButton from './auth/LogoutButton';
+import { useAuth } from '../context/AuthContext';
 import WaitlistModal from './waitlist/WaitlistModal';
 
 export default function Navbar() {
   const { colorMode, toggleColorMode } = useColorMode();
-  const { user, isAuthenticated, isLoading } = useAuth0();
+  const { user, isAuthenticated, isLoading, signOut } = useAuth();
   const location = useLocation();
   const bg = useColorModeValue('white', '#1a1a1b');
   const borderColor = useColorModeValue('gray.200', '#343536');
-  
+
   const isLandingPage = location.pathname === '/';
-  
+
   const { isOpen: isWaitlistOpen, onOpen: onWaitlistOpen, onClose: onWaitlistClose } = useDisclosure();
 
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <>
@@ -86,7 +87,7 @@ export default function Navbar() {
           )}
 
           <HStack spacing={4} align="center">
-            {isLandingPage && !user && (
+            {isLandingPage && !isAuthenticated && (
               <>
                 <Button
                   as={RouterLink}
@@ -102,32 +103,48 @@ export default function Navbar() {
                 >
                   Join Waitlist
                 </Button>
-                <LoginButton variant="outline">
+                <Button
+                  as={RouterLink}
+                  to="/signin"
+                  variant="outline"
+                >
                   Sign In
-                </LoginButton>
-                <LoginButton colorScheme="orange" size="sm">
+                </Button>
+                <Button
+                  as={RouterLink}
+                  to="/signin"
+                  colorScheme="orange"
+                  size="sm"
+                >
                   Sign Up
-                </LoginButton>
+                </Button>
               </>
+            )}
+
+            {isLandingPage && isAuthenticated && user && (
+              <Button
+                as={RouterLink}
+                to="/home"
+                colorScheme="orange"
+              >
+                Go to App
+              </Button>
             )}
 
             {!isLandingPage && isAuthenticated && user && (
               <Menu>
                 <MenuButton>
-                  <Avatar 
-                    size="sm" 
-                    src={user.picture}
-                    name={user.name || user.email} 
-                    bg="orange.500" 
+                  <Avatar
+                    size="sm"
+                    name={user.email}
+                    bg="orange.500"
                   />
                 </MenuButton>
                 <MenuList>
                   <MenuItem as={RouterLink} to="/profile">Profile</MenuItem>
                   <MenuItem>Settings</MenuItem>
-                  <MenuItem>
-                    <LogoutButton variant="ghost" size="sm">
-                      Sign Out
-                    </LogoutButton>
+                  <MenuItem onClick={handleSignOut}>
+                    Sign Out
                   </MenuItem>
                 </MenuList>
               </Menu>
@@ -135,12 +152,21 @@ export default function Navbar() {
 
             {!isLandingPage && !isAuthenticated && !isLoading && (
               <>
-                <LoginButton variant="ghost">
+                <Button
+                  as={RouterLink}
+                  to="/signin"
+                  variant="ghost"
+                >
                   Sign In
-                </LoginButton>
-                <LoginButton colorScheme="orange" size="sm">
+                </Button>
+                <Button
+                  as={RouterLink}
+                  to="/signin"
+                  colorScheme="orange"
+                  size="sm"
+                >
                   Sign Up
-                </LoginButton>
+                </Button>
               </>
             )}
 
@@ -154,9 +180,9 @@ export default function Navbar() {
         </Flex>
       </Box>
 
-      <WaitlistModal 
-        isOpen={isWaitlistOpen} 
-        onClose={onWaitlistClose} 
+      <WaitlistModal
+        isOpen={isWaitlistOpen}
+        onClose={onWaitlistClose}
       />
     </>
   );

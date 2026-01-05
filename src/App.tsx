@@ -8,6 +8,7 @@ import Navbar from "./components/Navbar";
 import Subreddit from "./pages/Subreddit";
 import Story from "./pages/Story";
 import Profile from "./pages/Profile";
+import SignIn from "./pages/SignIn";
 import { extendTheme, ThemeConfig } from "@chakra-ui/react";
 
 const config: ThemeConfig = {
@@ -67,6 +68,7 @@ export default function App() {
               <Route path="/r/:subreddit" element={<Subreddit />} />
               <Route path="/r/:subreddit/comments/:postId" element={<Story />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/signin" element={<SignIn />} />
             </Routes>
           </Box>
         </Router>
