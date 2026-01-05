@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Box,
   VStack,
@@ -8,12 +8,12 @@ import {
   useColorModeValue,
   Badge,
   IconButton,
-  Collapse,
   Divider,
 } from '@chakra-ui/react';
 import { ChevronUpIcon, ChevronDownIcon } from '@chakra-ui/icons';
-import { FaPlay, FaPause, FaVolumeUp, FaComments, FaShare } from 'react-icons/fa';
+import { FaPlay, FaPause, FaVolumeUp, FaComments, FaShare, FaExternalLinkAlt } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
+import { Link as RouterLink } from 'react-router-dom';
 
 interface StoryCardProps {
   story: {
@@ -27,6 +27,7 @@ interface StoryCardProps {
     createdAt: Date;
     audioUrl?: string;
     isNarrated?: boolean;
+    reddit_url?: string;
   };
 }
 
@@ -99,7 +100,15 @@ export default function StoryCard({ story }: StoryCardProps) {
                 <Text>•</Text>
                 <Text>{formatDistanceToNow(story.createdAt)} ago</Text>
               </HStack>
-              <Text fontSize="lg" fontWeight="bold" lineHeight="1.2">
+              <Text
+                as={RouterLink}
+                to={`/r/${story.subreddit}/comments/${story.id}`}
+                fontSize="lg"
+                fontWeight="bold"
+                lineHeight="1.2"
+                _hover={{ color: 'orange.500' }}
+                cursor="pointer"
+              >
                 {story.title}
               </Text>
             </VStack>
@@ -143,6 +152,20 @@ export default function StoryCard({ story }: StoryCardProps) {
             >
               {story.comments} Comments
             </Button>
+            {story.reddit_url && (
+              <Button
+                as="a"
+                href={story.reddit_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                leftIcon={<FaExternalLinkAlt />}
+                variant="ghost"
+                size="sm"
+                color={textColor}
+              >
+                Reddit
+              </Button>
+            )}
             <Button
               leftIcon={<FaShare />}
               variant="ghost"
@@ -159,16 +182,6 @@ export default function StoryCard({ story }: StoryCardProps) {
                 onClick={handlePlayAudio}
               >
                 {isPlaying ? 'Pause' : 'Listen'}
-              </Button>
-            )}
-            {!story.isNarrated && (
-              <Button
-                leftIcon={<FaVolumeUp />}
-                variant="outline"
-                size="sm"
-                colorScheme="orange"
-              >
-                Generate Audio
               </Button>
             )}
           </HStack>
